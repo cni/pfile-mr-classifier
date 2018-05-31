@@ -1,0 +1,97 @@
+#! /bin/bash
+#
+
+CONTAINER="[ stanfordcni/pfile-mr-classifier ]"
+
+
+##############################################################################
+# Configure paths
+
+FLYWHEEL_BASE=/flywheel/v0
+OUTPUT_DIR=$FLYWHEEL_BASE/output
+INPUT_DIR=$FLYWHEEL_BASE/input/pfile
+CONFIG_FILE=$FLYWHEEL_BASE/config.json
+MANIFEST_FILE=$FLYWHEEL_BASE/manifest.json
+
+
+##############################################################################
+# Parse configuration
+
+if [[ -f $CONFIG_FILE ]]; then
+  eval $(jq -r '.config | to_entries[] | "config_\(.key)=\(.value)"' $CONFIG_FILE)
+else
+  CONFIG_FILE=$MANIFEST_FILE
+  eval $(jq -r '.config | to_entries[] | "config_\(.key)=\(.value.default)"' $CONFIG_FILE)
+fi
+
+
+##############################################################################
+# Set Time Zone
+
+TZ="${config_timezone}"
+echo "${CONTAINER}  Setting time zone to: $TZ"
+echo "$TZ" > /etc/timezone && ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime
+dpkg-reconfigure -f noninteractive tzdata
+
+
+##############################################################################
+# Check I/O directories and Generate metadata
+
+# Check that /output directory is empty
+if [ "-d" "$OUTPUT_DIR" ]
+    then
+        if [ "$(ls -A $OUTPUT_DIR)" ]; then
+            echo -e "$CONTAINER  Warning $OUTPUT_DIR is not Empty! Results may be overwritten."
+        fi
+    else
+        echo -e "$CONTAINER  $OUTPUT_DIR not found. It will be created."
+        mkdir $OUTPUT_DIR
+fi
+
+
+# Check for input
+input_file=`find $INPUT_DIR -type f -name "*.zip*" | head -1`
+
+if [[ -f $input_file ]]; then
+
+  # Generate the header from the zip file and export to csv
+  echo -e "${CONTAINER}  Extracting header from $input_file"
+  header_file=/tmp/pfile_header
+  unzip -p "$input_file" "*/P*.7.gz" | head -c 1000000 | gunzip > $header_file
+  /opt/pfile-tools/pfile_tools/scripts/dump_pfile_header.py $header_file --separator=, > $header_file.csv
+
+  if [[ ! -f "$header_file".csv ]]; then
+    echo -e "${CONTAINER}  Header extraction failed!"
+    exit 1
+  fi
+
+  # Generate the metadata
+  echo -e "${CONTAINER}  Generating metadata"
+  PYHONPATH=$PYTHONPATH:/flywheel/v0/ python $FLYWHEEL_BASE/pfile-mr-classifier.py \
+    "${input_file}" \
+    "${header_file}" \
+    "${header_file}.csv" \
+    "$OUTPUT_DIR"
+
+else
+  echo -e "${CONTAINER}  No inputs were provided and $INPUT_DIR has no valid input files!"
+  exit 1
+fi
+
+
+##############################################################################
+# Check for outputs and exit
+
+outputs=`find $OUTPUT_DIR -type f -name ".metadata.json"`
+
+# If outputs exist, then go on...
+if [[ -z $outputs ]]
+    then
+        echo -e "$CONTAINER  No results found in output directory... Exiting"
+        exit 1
+    else
+        chmod -R 777 $OUTPUT_DIR
+        echo -e "$CONTAINER  Success!"
+fi
+
+exit 0
