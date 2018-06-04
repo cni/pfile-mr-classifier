@@ -25,7 +25,7 @@ RUN pip install \
 
 # Install pfile_tools
 WORKDIR /opt
-ENV COMMIT 917388d388b1a2e026a6894a58692a878b7ee72e
+ENV COMMIT 451dab65b2d4ba8c399816f2eb9102e928920f01
 RUN git clone https://github.com/cni/pfile-tools.git && \
       cd pfile-tools && \
       git checkout ${COMMIT} && \
