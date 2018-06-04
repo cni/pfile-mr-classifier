@@ -13,7 +13,8 @@ RUN apt-get update && apt-get -y install \
     jq \
     git \
     unzip \
-    tzdata
+    tzdata \
+    wget
 
 # Install Pip libs
 RUN pip install \

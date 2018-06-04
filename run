@@ -34,6 +34,16 @@ echo "$TZ" > /etc/timezone && ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime
 dpkg-reconfigure -f noninteractive tzdata
 
 
+if [[ ${config_sync} == "true" ]]; then
+  echo -e "$CONTAINER  Syncing classification code from scitran-apps/dicom-mr-classifier/master..."
+  wget --quiet -O ${FLYWHEEL_BASE}/classification_from_label.py \
+      https://raw.githubusercontent.com/scitran-apps/dicom-mr-classifier/master/classification_from_label.py
+  chmod +x ${FLYWHEEL_BASE}/classification_from_label.py
+else
+  echo -e "$CONTAINER  Not syncing classification code. Using built-in version..."
+fi
+
+
 ##############################################################################
 # Check I/O directories and Generate metadata
 
@@ -57,7 +67,7 @@ if [[ -f $input_file ]]; then
   # Generate the header from the zip file and export to csv
   echo -e "${CONTAINER}  Extracting header from $input_file"
   header_file=/tmp/pfile_header
-  unzip -p "$input_file" "*/P*.7.gz" | head -c 1000000 | gunzip > $header_file
+  unzip -p "$input_file" "*/P*.7.gz" | head -c 1000000 | gunzip > $header_file 2>/dev/null
   /opt/pfile-tools/pfile_tools/scripts/dump_pfile_header.py $header_file --separator=, > $header_file.csv
 
   if [[ ! -f "$header_file".csv ]]; then
@@ -66,7 +76,7 @@ if [[ -f $input_file ]]; then
   fi
 
   # Generate the metadata
-  echo -e "${CONTAINER}  Generating metadata"
+  echo -e "${CONTAINER}  Generating metadata..."
   PYHONPATH=$PYTHONPATH:/flywheel/v0/ python $FLYWHEEL_BASE/pfile-mr-classifier.py \
     "${input_file}" \
     "${header_file}" \
