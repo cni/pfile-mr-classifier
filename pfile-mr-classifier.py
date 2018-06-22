@@ -22,13 +22,18 @@ def get_pfile_classification(pfile):
     classification = {}
     classification = classification_from_label.infer_classification(pfile.series_description)
 
-    # If this is multi band, note that, if this is a muxarcepi as well, use
-    # custom MUX classification. This denotes that we should use muxrecon.
-    # TODO: What if those classifications already exist...
+    # If this is multi-band, note that, if this is a muxarcepi as well, use
+    # custom MUXRECON classification. This denotes that we should use muxrecon.
     if pfile.rh_user_6 > 1:
-        classification['Features'] = ['Multi-Band']
+        if classification.has_key('Features'):
+            classification['Features'].append('Multi-Band')
+        else:
+            classification['Features'] = ['Multi-Band']
         if pfile.psd_name == 'muxarcepi':
-            classification['Custom'] = ['MUXRECON']
+            if classification.has_key('Custom'):
+                classification['Custom'].append('MUXRECON')
+            else:
+                classification['Custom'] = ['MUXRECON']
 
     return classification
 
