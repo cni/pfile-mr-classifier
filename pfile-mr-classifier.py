@@ -15,6 +15,28 @@ from pprint import pprint
 logging.basicConfig()
 log = logging.getLogger('pfile-mr-classifier')
 
+def get_pfile_classification(pfile):
+    """
+    Determine pfile classification from series description, etc.
+    """
+    classification = {}
+    classification = classification_from_label.infer_classification(pfile.series_description)
+
+    # If this is multi-band, note that, if this is a muxarcepi as well, use
+    # custom MUXRECON classification. This denotes that we should use muxrecon.
+    if pfile.rh_user_6 > 1:
+        if classification.has_key('Features'):
+            classification['Features'].append('Multi-Band')
+        else:
+            classification['Features'] = ['Multi-Band']
+        if pfile.psd_name == 'muxarcepi':
+            if classification.has_key('Custom'):
+                classification['Custom'].append('MUXRECON')
+            else:
+                classification['Custom'] = ['MUXRECON']
+
+    return classification
+
 
 def validate_timezone(zone):
     """
@@ -177,8 +199,7 @@ def pfile_classify(pfile, pfile_header_csv, pfile_name, outbase, timezone):
     pfile_file = {}
     pfile_file['name'] = os.path.basename(pfile_name)
     pfile_file['modality'] = _pfile.exam_type
-    pfile_file['classification'] = {}
-    pfile_file['classification'] = classification_from_label.infer_classification(_pfile.series_description)
+    pfile_file['classification'] = get_pfile_classification(_pfile)
     pfile_file['info'] = extract_pfile_header(pfile_header_csv)
 
 
