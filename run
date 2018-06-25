@@ -21,10 +21,10 @@ function parse_config {
   MANIFEST_FILE=$FLYWHEEL_BASE/manifest.json
 
   if [[ -f $CONFIG_FILE ]]; then
-    echo -e "$(cat $CONFIG_FILE | jq -r '.config.'$1)"
+    echo "$(cat $CONFIG_FILE | jq -r '.config.'$1)"
   else
     CONFIG_FILE=$MANIFEST_FILE
-    echo -e "$(cat $MANIFEST_FILE | jq -r '.config.'$1'.default')"
+    echo "$(cat $MANIFEST_FILE | jq -r '.config.'$1'.default')"
   fi
 }
 
@@ -37,12 +37,23 @@ echo "${CONTAINER}  Setting time zone to: $TZ"
 echo "$TZ" > /etc/timezone && ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime
 dpkg-reconfigure -f noninteractive tzdata
 
+
+##############################################################################
+# Handle sync option
+
 SYNC=$(parse_config 'sync')
-if [[ $(parse_config 'sync') == "true" ]]; then
-  echo -e "$CONTAINER  Syncing classification code from scitran-apps/dicom-mr-classifier/master..."
+if [[ ${SYNC} == "true" ]]; then
+  echo -e "$CONTAINER  Syncing classification code from scitran-apps/dicom-mr-classifier/sync-classification-e4..."
+  mv ${FLYWHEEL_BASE}/classification_from_label.py /tmp
   wget --quiet -O ${FLYWHEEL_BASE}/classification_from_label.py \
-      https://raw.githubusercontent.com/scitran-apps/dicom-mr-classifier/master/classification_from_label.py
-  chmod +x ${FLYWHEEL_BASE}/classification_from_label.py
+      https://raw.githubusercontent.com/scitran-apps/dicom-mr-classifier/sync-classification-e4/classification_from_label.py
+  STAT_GET=$?
+  if [[ $STAT_GET != 0 ]]; then
+    echo -e "$CONTAINER Error during sync!"
+    mv /tmp/classification_from_label.py ${FLYWHEEL_BASE}
+  else
+    chmod +x ${FLYWHEEL_BASE}/classification_from_label.py
+  fi
 else
   echo -e "$CONTAINER  Not syncing classification code. Using built-in version..."
 fi
