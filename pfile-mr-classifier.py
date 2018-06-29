@@ -20,20 +20,62 @@ def get_pfile_classification(pfile):
     Determine pfile classification from series description, etc.
     """
     classification = {}
-    classification = classification_from_label.infer_classification(pfile.series_description)
-
-    # If this is multi-band, note that, if this is a muxarcepi as well, use
-    # custom MUXRECON classification. This denotes that we should use muxrecon.
-    if pfile.rh_user_6 > 1:
-        if classification.has_key('Features'):
-            classification['Features'].append('Multi-Band')
+    PSD = pfile.psd_name.lower()
+    # If this pfile is from one of the muxarcepi sequences (CNI specific), then
+    # we use our knowledge of the sequence to classify the file.
+    if PSD.startswith('muxarcepi'):
+        if PSD.startswith('muxarcepi2'):
+            classification['Measurement'] = ['Diffusion']
+            classification['Intent'] = ['Structural']
+        elif PSD.startswith('muxarcepi_IR'):
+            classification['Measurement'] = ['T1']
+            classification['Intent'] = ['Structural']
+            classification['Features'] = ['Quantitative']
+        elif PSD == 'muxarcepi_me':
+            classification['Measurement'] = ['T2*']
+            classification['Intent'] = ['Functional']
+            classification['Features'] = ['Multi-Echo']
+        elif PSD == 'muxarcepi':
+            classification['Measurement'] = ['T2*']
+            classification['Intent'] = ['Functional']
         else:
-            classification['Features'] = ['Multi-Band']
-        if pfile.psd_name == 'muxarcepi':
-            if classification.has_key('Custom'):
-                classification['Custom'].append('MUXRECON')
+            classification = classification_from_label.infer_classification(pfile.series_description)
+
+        # If this is multi-band, we add that to the classification.
+        if pfile.rh_user_6 > 1:
+            if classification.has_key('Features'):
+                classification['Features'].append('Multi-Band')
             else:
-                classification['Custom'] = ['MUXRECON']
+                classification['Features'] = ['Multi-Band']
+
+        # Custome MUXRECON classification. This denotes that we should use muxrecon
+        # for reconstruction.
+        if classification.has_key('Custom'):
+            classification['Custom'].append('MUXRECON')
+        else:
+            classification['Custom'] = ['MUXRECON']
+
+    # Use priors to determine classification for certain sequences
+    elif PSD == 'sprlio':
+        classification['Measurement'] = ['T2*']
+        classification['Intent'] = ['Functional']
+    elif PSD == 'sprl_hos':
+        classification['Intent'] = ['Shim']
+    elif PSD == 'spep_cni':
+        classification['Measurement'] = ['ASL']
+        classification['Intent'] = ['Functional']
+    elif PSD == 'sprt':
+        classification['Measurement'] = ['B0']
+        classification['Intent'] = ['Fieldmap']
+        if classification.has_key('Custom'):
+            classification['Custom'].append('SPRLRECON')
+        else:
+            classification['Custom'] = ['SPRLRECON']
+    elif PSD.startswith('nfl') or PSD.startswith('special') or PSD.startswith('probe-mega') or PSD.startswith('imspecial') or PSD.startswith('gaba'):
+        classification['Measurement'] = ['Spectroscopy']
+
+    else:
+        classification = classification_from_label.infer_classification(pfile.series_description)
 
     return classification
 
@@ -199,8 +241,8 @@ def pfile_classify(pfile, pfile_header_csv, pfile_name, outbase, timezone):
     pfile_file = {}
     pfile_file['name'] = os.path.basename(pfile_name)
     pfile_file['modality'] = _pfile.exam_type
-    pfile_file['classification'] = get_pfile_classification(_pfile)
     pfile_file['info'] = extract_pfile_header(pfile_header_csv)
+    pfile_file['classification'] = get_pfile_classification(_pfile)
 
 
     # Acquisition metadata
