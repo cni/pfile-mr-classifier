@@ -21,6 +21,8 @@ def get_pfile_classification(pfile):
     """
     classification = {}
     PSD = pfile.psd_name.lower()
+    SERIES_DESCRIPTION = pfile.series_description.lower()
+
     # If this pfile is from one of the muxarcepi sequences (CNI specific), then
     # we use our knowledge of the sequence to classify the file.
     if PSD.startswith('muxarcepi'):
@@ -35,10 +37,11 @@ def get_pfile_classification(pfile):
             classification['Measurement'] = ['T2*']
             classification['Intent'] = ['Functional']
             classification['Features'] = ['Multi-Echo']
-        elif PSD == 'muxarcepi':
+        elif PSD == 'muxarcepi' and SERIES_DESCRIPTION.find('fieldmap') == -1:
             classification['Measurement'] = ['T2*']
             classification['Intent'] = ['Functional']
         else:
+            log.info("Using series description for classification!")
             classification = classification_from_label.infer_classification(pfile.series_description)
 
         # If this is multi-band, we add that to the classification.
@@ -48,7 +51,7 @@ def get_pfile_classification(pfile):
             else:
                 classification['Features'] = ['Multi-Band']
 
-        # Custome MUXRECON classification. This denotes that we should use muxrecon
+        # Custom MUXRECON classification. This denotes that we should use muxrecon
         # for reconstruction.
         if classification.has_key('Custom'):
             classification['Custom'].append('MUXRECON')
@@ -75,6 +78,7 @@ def get_pfile_classification(pfile):
         classification['Measurement'] = ['Spectroscopy']
 
     else:
+        log.info("Using series description for classification!")
         classification = classification_from_label.infer_classification(pfile.series_description)
 
     return classification
