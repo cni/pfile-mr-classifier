@@ -193,6 +193,17 @@ def extract_pfile_header(pfile_header_csv):
     return pfile_header
 
 
+def get_pfile_contents(pfile):
+    """
+    Get a list of files within the pfile Archive
+    """
+    if zipfile.is_zipfile(pfile):
+        zip = zipfile.ZipFile(pfile)
+        return zip.namelist()
+    else:
+        return None
+
+
 def pfile_classify(pfile, pfile_header_csv, pfile_name, outbase, timezone):
     """
     Extracts metadata from pfile file header within a zip file and writes to .metadata.json.
@@ -247,6 +258,11 @@ def pfile_classify(pfile, pfile_header_csv, pfile_name, outbase, timezone):
     pfile_file['modality'] = _pfile.exam_type
     pfile_file['info'] = extract_pfile_header(pfile_header_csv)
     pfile_file['classification'] = get_pfile_classification(_pfile)
+
+    # Get a list of the files within the zip.
+    contents = get_pfile_contents(pfile_name)
+    if contents:
+        pfile_file['info']['zip_contents'] = contents
 
 
     # Acquisition metadata
