@@ -204,6 +204,22 @@ def get_pfile_contents(pfile):
         return None
 
 
+def get_pfile_comment(pfile):
+    """
+    Get the comment from the Archive
+    """
+    if zipfile.is_zipfile(pfile):
+        try:
+            zip = zipfile.ZipFile(pfile)
+            comment = json.loads(zip.comment)
+            pprint(comment)
+            return comment
+        except:
+            return None
+    else:
+        return None
+
+
 def pfile_classify(pfile, pfile_header_csv, pfile_name, outbase, timezone):
     """
     Extracts metadata from pfile file header within a zip file and writes to .metadata.json.
@@ -263,6 +279,9 @@ def pfile_classify(pfile, pfile_header_csv, pfile_name, outbase, timezone):
     contents = get_pfile_contents(pfile_name)
     if contents:
         pfile_file['info']['zip_contents'] = contents
+    comment = get_pfile_comment(pfile_name)
+    if comment:
+        pfile_file['info']['zip_comment'] = comment
 
 
     # Acquisition metadata
