@@ -53,10 +53,10 @@ def get_pfile_classification(pfile):
 
         # Custom MUXRECON classification. This denotes that we should use muxrecon
         # for reconstruction.
-        if classification.has_key('Custom'):
-            classification['Custom'].append('MUXRECON')
-        else:
-            classification['Custom'] = ['MUXRECON']
+        # if classification.has_key('Custom'):
+        #     classification['Custom'].append('MUXRECON')
+        # else:
+        #     classification['Custom'] = ['MUXRECON']
 
     # Use priors to determine classification for certain sequences
     elif PSD == 'sprlio':
@@ -70,16 +70,22 @@ def get_pfile_classification(pfile):
     elif PSD == 'sprt':
         classification['Measurement'] = ['B0']
         classification['Intent'] = ['Fieldmap']
-        if classification.has_key('Custom'):
-            classification['Custom'].append('SPRLRECON')
-        else:
-            classification['Custom'] = ['SPRLRECON']
+        # if classification.has_key('Custom'):
+        #     classification['Custom'].append('SPRLRECON')
+        # else:
+        #     classification['Custom'] = ['SPRLRECON']
     elif PSD.startswith('nfl') or PSD.startswith('special') or PSD.startswith('probe-mega') or PSD.startswith('imspecial') or PSD.startswith('gaba'):
         classification['Measurement'] = ['Spectroscopy']
 
     else:
         log.info("Using series description for classification!")
         classification = classification_from_label.infer_classification(pfile.series_description)
+
+    # ADD PSD to custom key.
+    if classification.has_key('Custom'):
+        classification['Custom'].append(PSD)
+    else:
+        classification['Custom'] = [PSD]
 
     return classification
 
