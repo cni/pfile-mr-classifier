@@ -21,6 +21,7 @@ def get_pfile_classification(pfile):
     """
     classification = {}
     PSD = pfile.psd_name.lower()
+    EXAM_NUMBER = pfile.exam_number
     SERIES_DESCRIPTION = pfile.series_description.lower()
 
     # If this pfile is from one of the muxarcepi sequences (CNI specific), then
@@ -70,10 +71,6 @@ def get_pfile_classification(pfile):
     elif PSD == 'sprt':
         classification['Measurement'] = ['B0']
         classification['Intent'] = ['Fieldmap']
-        # if classification.has_key('Custom'):
-        #     classification['Custom'].append('SPRLRECON')
-        # else:
-        #     classification['Custom'] = ['SPRLRECON']
     elif PSD.startswith('nfl') or PSD.startswith('special') or PSD.startswith('probe-mega') or PSD.startswith('imspecial') or PSD.startswith('gaba'):
         classification['Measurement'] = ['Spectroscopy']
 
@@ -81,11 +78,12 @@ def get_pfile_classification(pfile):
         log.info("Using series description for classification!")
         classification = classification_from_label.infer_classification(pfile.series_description)
 
-    # ADD PSD to custom key.
+    # ADD PSD and Study ID to custom key.
+    custom_class = [ PSD, 'NIMS'] if EXAM_NUMBER < 18426 else [PSD]
     if classification.has_key('Custom'):
-        classification['Custom'].append(PSD)
+        classification['Custom'].extend(custom_class)
     else:
-        classification['Custom'] = [PSD]
+        classification['Custom'] = custom_class
 
     return classification
 
