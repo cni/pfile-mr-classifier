@@ -75,19 +75,30 @@ fi
 
 
 # Check for input
-input_file=`find $INPUT_DIR -type f -name "*.zip*" | head -1`
+input_file=`find $INPUT_DIR -type f -name "*.7*" | head -1`
 
 if [[ -f $input_file ]]; then
 
-  # Generate the header from the zip file and export to csv
+  # Generate the truncated header from the zip file, or other, and export to csv
   echo -e "${CONTAINER}  Extracting header from $input_file"
   header_file=/tmp/pfile_header
-  unzip -p "$input_file" "*/P*.7.gz" | head -c 1000000 | gunzip > $header_file 2>/dev/null
+  if echo "$input_file" | grep -q ".7.zip"; then
+    echo -e "${CONTAINER}  Found pfile zip archive - unzipping, extracting, and generating truncated header..."
+    unzip -p "$input_file" "*/P*.7.gz" | head -c 1000000 | gunzip > $header_file 2>/dev/null
+  elif echo "$input_file" | grep -q ".7.gz"; then
+    echo -e "${CONTAINER}  Found gzipped pfile - extracting and generating truncated header..."
+    cat $input_file | head -c 1000000 | gunzip > $header_file 2>/dev/null
+  elif echo "$input_file" | grep -q ".7"; then
+    echo -e "${CONTAINER}  Found pfile - generating truncated header..."
+    cat $input_file | head -c 1000000 > $header_file 2>/dev/null
+  fi
+
+  # Generate header file
   /opt/pfile-tools/pfile_tools/scripts/dump_pfile_header.py $header_file --separator=, > $header_file.csv
 
-  if [[ ! -f "$header_file".csv ]]; then
-    echo -e "${CONTAINER}  Header extraction failed!"
-    exit 1
+  if [[ $? != 0 ]]; then
+    echo -e "${CONTAINER}  Error generating header!"
+    exit 11
   fi
 
   # Generate the metadata
@@ -97,7 +108,10 @@ if [[ -f $input_file ]]; then
     "${header_file}" \
     "${header_file}.csv" \
     "$OUTPUT_DIR"
-
+    if [[ $? != 0 ]]; then
+      echo -e "${CONTAINER}  Error generating metadata!"
+      exit 1
+    fi
 else
   echo -e "${CONTAINER}  No inputs were provided and $INPUT_DIR has no valid input files!"
   exit 1

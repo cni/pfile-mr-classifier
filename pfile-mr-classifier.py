@@ -79,7 +79,7 @@ def get_pfile_classification(pfile):
         classification = classification_from_label.infer_classification(pfile.series_description)
 
     # ADD PSD and Study ID to custom key.
-    custom_class = [ PSD, 'NIMS'] if EXAM_NUMBER < 18426 else [PSD]
+    custom_class = [ PSD, 'NIMS'] if (EXAM_NUMBER < 18426 and (pfile.hospital_name == 'CNI' or pfile.system_id == 'cnimr')) else [PSD]
     if classification.has_key('Custom'):
         classification['Custom'].extend(custom_class)
     else:
