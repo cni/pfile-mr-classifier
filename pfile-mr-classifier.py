@@ -15,6 +15,13 @@ from pprint import pprint
 logging.basicConfig()
 log = logging.getLogger('pfile-mr-classifier')
 
+def format_string(in_string):
+    formatted = re.sub(r'[^\x00-\x7f]',r'', str(in_string)) # Remove non-ascii characters
+    formatted = filter(lambda x: x in string.printable, formatted)
+    if len(formatted) == 1 and formatted == '?':
+        formatted = None
+    return formatted
+
 def get_pfile_classification(pfile):
     """
     Determine pfile classification from series description, etc.
@@ -185,6 +192,7 @@ def extract_pfile_header(pfile_header_csv):
         next(csvreader)
         for row in csvreader:
             if row[1]:
+                row[1] = format_string(row[1])
                 try:
                     row[1] = int(row[1])
                 except:
