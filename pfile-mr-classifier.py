@@ -306,6 +306,10 @@ def pfile_classify(pfile, pfile_header_csv, pfile_name, outbase, timezone):
     # Append the pfile_file to the files array
     metadata['acquisition']['files'] = [pfile_file]
 
+    # For LC Model we look at the PSD name and write out acquisition tags
+    if _pfile.psd_name.lower().startswith('nfl'):
+        metadata['acquisition']['tags'] = [ 'LCMODEL_PROCESS', 'LCMODEL^latest' ]
+
     # Write out the metadata to file (.metadata.json)
     metafile_outname = os.path.join(outbase,'.metadata.json')
     with open(metafile_outname, 'w') as metafile:
