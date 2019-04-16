@@ -9,9 +9,9 @@
   "cite": "pfile-tools: GE P-File Utilities (https://github.com/njvack/pfile-tools)",
   "license": "BSD-2-Clause",
   "flywheel": "0",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "custom": {
-    "docker-image": "stanfordcni/pfile-mr-classifier:1.7.0",
+    "docker-image": "stanfordcni/pfile-mr-classifier:1.7.1",
     "flywheel": {
       "suite": "Stanford CNI"
     }

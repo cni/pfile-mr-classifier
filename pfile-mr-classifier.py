@@ -261,7 +261,8 @@ def pfile_classify(pfile, pfile_header_csv, pfile_name, outbase, timezone):
 
     # Session metadata
     metadata['session'] = {}
-    metadata['session']['operator'] = _pfile.operators_name
+    if hasattr(_pfile, 'operators_name') and _pfile.operators_name:
+        metadata['session']['operator'] = _pfile.operators_name
     metadata['session']['label'] = str(_pfile.exam_number)
     if session_timestamp:
         metadata['session']['timestamp'] = session_timestamp
