@@ -25,7 +25,7 @@ RUN pip install \
 
 # Install pfile_tools
 WORKDIR /opt
-ENV COMMIT d608e27119620768535239fc91ab8ff9a8a94cfc
+ENV COMMIT 8e8984176563990a060533c6a12e0ac40883b6fe
 RUN git clone https://github.com/cni/pfile-tools.git && \
       cd pfile-tools && \
       git checkout ${COMMIT} && \
@@ -38,8 +38,7 @@ COPY run ${FLYWHEEL}/run
 COPY manifest.json ${FLYWHEEL}/manifest.json
 
 # Add code to determine classification from acquisitions descrip (label)
-ENV COMMIT 7068041ea9dab6ac97ae6b1668ef628c888b4cf7
-ADD https://raw.githubusercontent.com/scitran-apps/dicom-mr-classifier/${COMMIT}/classification_from_label.py classification_from_label.py
+COPY classification_from_label.py classification_from_label.py
 
 # Copy classifier code into place
 COPY pfile-mr-classifier.py ${FLYWHEEL}/pfile-mr-classifier.py
