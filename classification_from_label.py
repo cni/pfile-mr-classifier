@@ -310,7 +310,7 @@ def infer_classification(label):
         elif is_susceptability(label):
             classification['Measurement'] = ['Susceptability']
         elif is_spectroscopy(label):
-            classification['Measurement'] = ['Spectroscopy']
+            classification['Intent'] = ['Spectroscopy']
         elif is_phase_map(label):
             classification['Custom'] = ['Phase Map']
         elif is_screenshot(label):
