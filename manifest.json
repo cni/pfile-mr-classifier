@@ -25,11 +25,6 @@
       "description": "Time Zone to which all timestamps should be localized. This will set the default time zone in the Gear and thus localize the timestamps to that time zone. Examples: 'UTC', 'America/Los_Angeles', 'America/New_York'. [default = 'America/Los_Angeles'].",
       "type": "string",
       "default": "America/Los_Angeles"
-    },
-    "sync": {
-      "description": "Synchronize classification definitions with the latest known updates found at scitran-apps/dicom-mr-classifier [default = true].",
-      "type": "boolean",
-      "default": true
     }
   },
   "inputs": {
