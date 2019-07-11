@@ -121,7 +121,7 @@ def parse_patient_age(age):
         age = str(age)
 
     conversion = {  # conversion to days
-        'Y': 365,
+        'Y': 365.25,
         'M': 30,
         'W': 7,
         'D': 1,
