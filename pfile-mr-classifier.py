@@ -73,13 +73,13 @@ def get_pfile_classification(pfile):
     elif PSD == 'sprl_hos':
         classification['Intent'] = ['Shim']
     elif PSD == 'spep_cni':
-        classification['Measurement'] = ['ASL']
+        classification['Measurement'] = ['Perfusion']
         classification['Intent'] = ['Functional']
     elif PSD == 'sprt':
         classification['Measurement'] = ['B0']
         classification['Intent'] = ['Fieldmap']
     elif PSD.startswith('nfl') or PSD.startswith('special') or PSD.startswith('probe-mega') or PSD.startswith('imspecial') or PSD.startswith('gaba'):
-        classification['Measurement'] = ['Spectroscopy']
+        classification['Intent'] = ['Spectroscopy']
 
     else:
         log.info("Using series description for classification!")
