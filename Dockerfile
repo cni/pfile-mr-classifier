@@ -18,6 +18,7 @@ RUN apt-get update && apt-get -y install \
 
 # Install Pip libs
 RUN pip install \
+  numpy==1.15.1 \
   python-dateutil==2.6.0 \
   pytz==2017.2 \
   tzlocal==1.4 \
