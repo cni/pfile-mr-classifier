@@ -10,7 +10,7 @@ import logging
 import zipfile
 import datetime
 import classification_from_label
-from pprint import pprint
+import pprint
 
 logging.basicConfig()
 log = logging.getLogger('pfile-mr-classifier')
@@ -137,9 +137,9 @@ def parse_patient_age(age):
 
     # Make sure that the age is reasonable
     if not age_in_seconds or age_in_seconds <= 0:
-        age_in_seconds = None
+        return None
 
-    return age_in_seconds
+    return int(age_in_seconds)
 
 
 def get_timestamp(pfile, timezone):
@@ -224,7 +224,7 @@ def get_pfile_comment(pfile):
         try:
             zip = zipfile.ZipFile(pfile)
             comment = json.loads(zip.comment)
-            pprint(comment)
+            log.info(pprint.pformat(comment))
             return comment
         except:
             return None
@@ -271,14 +271,12 @@ def pfile_classify(pfile, pfile_header_csv, pfile_name, outbase, timezone):
     # Subject Metadata
     metadata['session']['subject'] = {}
     metadata['session']['subject']['sex'] = get_sex_string(_pfile.patient_sex)
-    age = parse_patient_age(_pfile.patient_age)
-    metadata['session']['subject']['age'] = int(age) if age else 0
-    subname = _pfile.patient_name
-    if subname:
-        name = subname.split('^')
-        metadata['session']['subject']['lastname'] = name[0]
-        if len(name) == 2:
-            metadata['session']['subject']['firstname'] = name[1]
+    subject_age = parse_patient_age(_pfile.patient_age)
+    if subject_age:
+        metadata['session']['subject']['age'] = subject_age
+    if hasattr(_pfile, 'patient_weight_g') and _pfile.patient_weight_g:
+        # Return weight in kg
+        metadata['session']['subject']['weight'] = _pfile.patient_weight_g * 0.001
 
 
     # File metadata
@@ -286,6 +284,8 @@ def pfile_classify(pfile, pfile_header_csv, pfile_name, outbase, timezone):
     pfile_file['name'] = os.path.basename(pfile_name)
     pfile_file['modality'] = _pfile.exam_type
     pfile_file['info'] = extract_pfile_header(pfile_header_csv)
+    if pfile_file['info'].get('patient_name'):
+        pfile_file['info']['patient_name'] = 'REDACTED'
     pfile_file['classification'] = get_pfile_classification(_pfile)
 
     # Get a list of the files within the zip.
@@ -317,7 +317,7 @@ def pfile_classify(pfile, pfile_header_csv, pfile_name, outbase, timezone):
         json.dump(metadata, metafile)
 
     # Show the metadata
-    pprint(metadata)
+    log.info(pprint.pformat(metadata))
 
     return metafile_outname
 
