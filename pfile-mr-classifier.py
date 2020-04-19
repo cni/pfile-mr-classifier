@@ -273,12 +273,6 @@ def pfile_classify(pfile, pfile_header_csv, pfile_name, outbase, timezone):
     metadata['session']['subject']['sex'] = get_sex_string(_pfile.patient_sex)
     age = parse_patient_age(_pfile.patient_age)
     metadata['session']['subject']['age'] = int(age) if age else 0
-    subname = _pfile.patient_name
-    if subname:
-        name = subname.split('^')
-        metadata['session']['subject']['lastname'] = name[0]
-        if len(name) == 2:
-            metadata['session']['subject']['firstname'] = name[1]
 
 
     # File metadata
@@ -286,6 +280,8 @@ def pfile_classify(pfile, pfile_header_csv, pfile_name, outbase, timezone):
     pfile_file['name'] = os.path.basename(pfile_name)
     pfile_file['modality'] = _pfile.exam_type
     pfile_file['info'] = extract_pfile_header(pfile_header_csv)
+    if pfile_file['info'].get('patient_name'):
+        pfile_file['info']['patient_name'] = 'REDACTED'
     pfile_file['classification'] = get_pfile_classification(_pfile)
 
     # Get a list of the files within the zip.
