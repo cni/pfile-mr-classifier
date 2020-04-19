@@ -137,9 +137,9 @@ def parse_patient_age(age):
 
     # Make sure that the age is reasonable
     if not age_in_seconds or age_in_seconds <= 0:
-        age_in_seconds = None
+        return None
 
-    return age_in_seconds
+    return int(age_in_seconds)
 
 
 def get_timestamp(pfile, timezone):
@@ -271,8 +271,9 @@ def pfile_classify(pfile, pfile_header_csv, pfile_name, outbase, timezone):
     # Subject Metadata
     metadata['session']['subject'] = {}
     metadata['session']['subject']['sex'] = get_sex_string(_pfile.patient_sex)
-    age = parse_patient_age(_pfile.patient_age)
-    metadata['session']['subject']['age'] = int(age) if age else 0
+    subject_age = parse_patient_age(_pfile.patient_age)
+    if subject_age:
+        metadata['session']['subject']['age'] = subject_age
 
 
     # File metadata
