@@ -10,7 +10,7 @@ import logging
 import zipfile
 import datetime
 import classification_from_label
-from pprint import pprint
+import pprint
 
 logging.basicConfig()
 log = logging.getLogger('pfile-mr-classifier')
@@ -224,7 +224,7 @@ def get_pfile_comment(pfile):
         try:
             zip = zipfile.ZipFile(pfile)
             comment = json.loads(zip.comment)
-            pprint(comment)
+            log.info(pprint.pformat(comment))
             return comment
         except:
             return None
@@ -314,7 +314,7 @@ def pfile_classify(pfile, pfile_header_csv, pfile_name, outbase, timezone):
         json.dump(metadata, metafile)
 
     # Show the metadata
-    pprint(metadata)
+    log.info(pprint.pformat(metadata))
 
     return metafile_outname
 
