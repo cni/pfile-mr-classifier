@@ -276,7 +276,7 @@ def pfile_classify(pfile, pfile_header_csv, pfile_name, outbase, timezone):
         metadata['session']['subject']['age'] = subject_age
     if hasattr(_pfile, 'patient_weight_g') and _pfile.patient_weight_g:
         # Return weight in kg
-        metadata['session']['subject']['weight'] = _pfile.patient_weight_g * 0.001
+        metadata['session']['weight'] = _pfile.patient_weight_g * 0.001
 
 
     # File metadata
