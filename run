@@ -63,7 +63,7 @@ if [[ -f $input_file ]]; then
   header_file=/tmp/pfile_header
   if echo "$input_file" | grep -q ".7.zip"; then
     echo -e "${CONTAINER}  Found pfile zip archive - unzipping, extracting, and generating truncated header..."
-    unzip -p "$input_file" "*/P*.7.gz" | head -c 1000000 | gunzip > $header_file 2>/dev/null
+    unzip -p "$input_file" "*/*.7.gz" | head -c 1000000 | gunzip > $header_file 2>/dev/null
   elif echo "$input_file" | grep -q ".7.gz"; then
     echo -e "${CONTAINER}  Found gzipped pfile - extracting and generating truncated header..."
     cat $input_file | head -c 1000000 | gunzip > $header_file 2>/dev/null
