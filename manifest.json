@@ -4,8 +4,8 @@
   "description": "Extracts GE P-File header and generates JSON metadata (.metadata.json) which is saved in Flywheel on the P-File's info object. This gear also attempts to determine the P-File's classification (measurement, intent, etc.) using information about the sequence, as well as heuristics based upon the series description.",
   "maintainer": "Michael Perry <lmperry@stanford.edu>",
   "author": "Michael Perry <lmperry@stanford.edu>",
-  "url": "https://cni.stanford.edu",
-  "source": "https://github.com/cni/pfile-mr-classifier",
+  "url": "https://github.com/cni/pfile-mr-classifier",
+  "source": "https://cni.stanford.edu",
   "cite": "pfile-tools: GE P-File Utilities (https://github.com/njvack/pfile-tools)",
   "license": "BSD-2-Clause",
   "flywheel": "0",
@@ -16,7 +16,24 @@
       "category": "converter"
     },
     "flywheel": {
-      "suite": "Stanford CNI"
+      "suite": "Curation",
+      "classification": {
+        "species": [
+          "Human"
+        ],
+        "organ": [
+          "Any"
+        ],
+        "therapeutic_area": [
+          "Any"
+        ],
+        "modality": [
+          "MR"
+        ],
+        "function": [
+          "Curation"
+        ]
+      }
     }
   },
   "config": {
