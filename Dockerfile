@@ -3,7 +3,7 @@
 
 FROM ubuntu:xenial
 
-MAINTAINER Michael Perry <lmperry@stanford.edu>
+LABEL maintainer="Michael Perry <lmperry@stanford.edu>"
 
 # Install dependencies
 RUN apt-get update && apt-get -y install \
@@ -26,7 +26,7 @@ RUN pip install \
 
 # Install pfile_tools
 WORKDIR /opt
-ENV COMMIT 23ec2b6109371bf709305b173741562fc2ec9170
+ENV COMMIT ae7f812e668df114cd537516113f4f6f6f1ec604
 RUN git clone https://github.com/cni/pfile-tools.git && \
       cd pfile-tools && \
       git checkout ${COMMIT} && \
