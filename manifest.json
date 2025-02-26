@@ -9,11 +9,11 @@
   "cite": "pfile-tools: GE P-File Utilities (https://github.com/njvack/pfile-tools)",
   "license": "BSD-2-Clause",
   "flywheel": "0",
-  "version": "2.4.0_23ec2b6",
+  "version": "2.5.0_ae7f812",
   "custom": {
     "gear-builder": {
-      "image": "stanfordcni/pfile-mr-classifier:2.4.0_23ec2b6",
-      "category": "converter"
+      "image": "stanfordcni/pfile-mr-classifier:2.5.0_ae7f812",
+      "category": "classifier"
     },
     "flywheel": {
       "suite": "Curation",
